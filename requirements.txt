@@ -1,0 +1,32 @@
+# Core AI
+langchain
+langchain-openai
+langchain-community
+chromadb
+sentence-transformers
+tiktoken
+
+# Local AI Engines
+ollama
+sentence-transformers
+langchain-ollama
+langchain-community
+
+# Core Logic
+chromadb
+tiktoken
+
+# Backend & API
+fastapi
+uvicorn[standard]
+python-multipart
+python-dotenv
+pydantic
+
+# Document Processing
+pypdf
+python-docx
+tqdm
+
+# Testing
+pytest
