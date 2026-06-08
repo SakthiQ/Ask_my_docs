@@ -139,19 +139,20 @@ Response example:
 ask-my-docs/
 │
 ├─ app/
-│   ├─ __init__.py
 │   ├─ main.py          # FastAPI entry point
 │   ├─ routes.py        # /upload & /query endpoints
 │   └─ rag/
-│       ├─ __init__.py
 │       ├─ loader.py    # PDF/DOCX/MD extraction
 │       ├─ chunker.py   # Token-aware recursive splitter
 │       ├─ embedder.py  # Local sentence-transformer embeddings
-│       └─ vectorstore.py
+│       ├─ vectorstore.py
+│       └─ engine.py    # RAG Orchestration (Chroma + Ollama)
 │
-├─ data/                # Uploaded files (git-ignored)
+├─ frontend/
+│   └─ streamlit_app.py # Streamlit Chat UI
+│
+├─ data/                # Uploaded files
 ├─ tests/               # Pytest suite
-├─ .env                 # Environment variables (git-ignored)
 ├─ requirements.txt
 └─ README.md
 ```
