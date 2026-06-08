@@ -1,262 +1,188 @@
-# Ask My Docs
+# Ask My Documents – Local-Model RAG Platform
+![GitHub License](https://img.shields.io/github/license/SakthiQ/ask-my-docs)  
+![Python](https://img.shields.io/badge/python-3.11%2B-blue)  
+![Status](https://img.shields.io/badge/status-beta-orange)
 
-An AI-powered document intelligence platform that enables users to upload documents, search knowledge, and interact with them using natural language through a Retrieval-Augmented Generation (RAG) pipeline.
+---
 
-## Overview
+## 🎯 Overview
+**Ask My Documents** is a privacy-first Retrieval-Augmented Generation (RAG) system that lets users upload PDFs, DOCX, or Markdown files, ask natural-language questions, and receive answers **backed by exact citations** (file name, page, paragraph).  
 
-Ask My Docs transforms static documents into an interactive knowledge base. Users can upload PDFs, research papers, reports, contracts, manuals, and other documents, then ask questions and receive context-aware answers grounded in the uploaded content.
+All processing runs **locally** using a small embedding model (`all-MiniLM-L6-v2`) and a local LLM served by **Ollama** (e.g., `llama3`). No external API keys are required beyond the optional OpenAI key for fallback.
 
-The system combines semantic search, vector embeddings, and Large Language Models (LLMs) to provide accurate, explainable responses with source attribution.
+---
 
-## Features
-
-### Document Processing
-
-* PDF document upload
-* Automatic text extraction
-* Intelligent text chunking
-* Metadata preservation
-
-### Retrieval-Augmented Generation (RAG)
-
-* Embedding generation
-* Vector similarity search
-* Context retrieval
-* Grounded AI responses
-
-### AI-Powered Question Answering
-
-* Natural language queries
-* Context-aware responses
-* Multi-document search
-* Conversational interaction
-
-### Knowledge Retrieval
-
-* Semantic document search
-* Relevant chunk retrieval
-* Source references
-* Reduced hallucinations
-
-## System Architecture
-
-```text
-User Query
-    │
-    ▼
-Retriever
-    │
-    ▼
-Vector Database
-    │
-    ▼
-Relevant Chunks
-    │
-    ▼
-LLM
-    │
-    ▼
-Answer + Citations
+## 🏗️ Architecture
+```mermaid
+flowchart LR
+    subgraph User
+        Q[User Question]
+        U[Upload Document]
+    end
+    subgraph Backend
+        R[Retriever] --> V[Vector DB (Chroma)]
+        Q --> R
+        V --> L[LLM (Ollama)]
+        L --> A[Answer + Citations]
+    end
+    U --> D[Document Loader]
+    D --> C[Chunker]
+    C --> E[Embedder]
+    E --> V
+    style User fill:#f9f9f9,stroke:#333,stroke-width:1px
+    style Backend fill:#e6f7ff,stroke:#333,stroke-width:1px
 ```
 
-## Technology Stack
+---
 
-### Frontend
+## ✨ Features (MVP)
+- 📂 Upload PDFs, DOCX, Markdown
+- 🧹 Text extraction with page/paragraph metadata
+- 📏 Token-aware recursive chunking (600-token chunks, 100-token overlap)
+- 🔗 Local embeddings (`all-MiniLM-L6-v2`)
+- 📦 Persistent vector store (ChromaDB)
+- 🤖 Local LLM inference via Ollama (e.g., `llama3`)
+- 📑 Answers include **exact source citations**
 
-* Streamlit
+---
 
-### Backend
+## 🛠️ Tech Stack
+| Layer | Technology |
+|-------|------------|
+| **Backend** | FastAPI, Uvicorn |
+| **Vector DB** | ChromaDB (local) |
+| **Embeddings** | Sentence-Transformers (`all-MiniLM-L6-v2`) |
+| **LLM** | Ollama (any local model, default `llama3`) |
+| **Document Parsing** | PyPDF, python-docx |
+| **Chunking** | LangChain RecursiveCharacterTextSplitter (token-aware) |
+| **Testing** | Pytest |
 
-* Python
-* LangChain
+---
 
-### AI Components
+## 🚀 Getting Started
 
-* OpenAI GPT Models
-* OpenAI Embeddings
+### Prerequisites
+1. **Python 3.11+** (recommended via `pyenv` or the system installer)
+2. **Ollama** – download from [https://ollama.com/download](https://ollama.com/download) and install.
+3. Pull a local model (e.g., `llama3`):
+   ```powershell
+   ollama pull llama3
+   ```
+4. (Optional) **GPU** – if you have an NVIDIA GPU, set `device='cuda'` in `embedder.py`.
 
-### Vector Database
-
-* FAISS
-
-### Document Processing
-
-* PyPDF
-
-### Environment Management
-
-* Python Virtual Environment
-* python-dotenv
-
-## Project Structure
-
-```text
-ask-my-docs/
-│
-├── backend/
-│   ├── app.py
-│   ├── rag.py
-│   ├── embeddings.py
-│   └── document_loader.py
-│
-├── frontend/
-│   └── streamlit_app.py
-│
-├── data/
-│   └── uploaded_documents/
-│
-├── vectorstore/
-│
-├── requirements.txt
-├── README.md
-└── .env
-```
-
-## Workflow
-
-### Step 1: Document Upload
-
-Users upload one or more PDF documents.
-
-### Step 2: Text Extraction
-
-The system extracts document content and metadata.
-
-### Step 3: Chunking
-
-Large documents are split into manageable chunks.
-
-### Step 4: Embedding Generation
-
-Each chunk is converted into vector embeddings.
-
-### Step 5: Vector Storage
-
-Embeddings are stored in a FAISS vector database.
-
-### Step 6: Query Processing
-
-User questions are embedded and matched against stored vectors.
-
-### Step 7: Retrieval
-
-Most relevant chunks are retrieved.
-
-### Step 8: Answer Generation
-
-The LLM generates responses using retrieved context.
-
-## Installation
-
-### Clone Repository
-
-```bash
+### Installation
+```powershell
+# Clone the repo
 git clone https://github.com/SakthiQ/ask-my-docs.git
 cd ask-my-docs
-```
 
-### Create Virtual Environment
+# Create a virtual environment
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 
-```bash
-python -m venv venv
-```
-
-Windows:
-
-```bash
-venv\Scripts\activate
-```
-
-Linux / Mac:
-
-```bash
-source venv/bin/activate
-```
-
-### Install Dependencies
-
-```bash
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-### Configure Environment Variables
-
-Create a `.env` file:
-
-```env
-OPENAI_API_KEY=YOUR_OPENAI_API_KEY
+### Environment Variables
+Create a `.env` file in the project root:
+```text
+# If you ever want to fall back to OpenAI embeddings (optional)
+OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxx
+# Ollama model name (default is llama3)
+OLLAMA_MODEL=llama3
 ```
 
-### Run Application
+---
 
-Backend:
+## 📚 Usage
 
+### 1️⃣ Start the API server
+```powershell
+uvicorn app.main:app --reload
+```
+The server will be reachable at `http://127.0.0.1:8000`.
+
+### 2️⃣ Upload a document
+`POST /upload` with `multipart/form-data` (field name `file`). Example using `curl`:
 ```bash
-python backend/app.py
+curl -X POST "http://127.0.0.1:8000/upload" \
+  -F "file=@/path/to/Policy.pdf"
 ```
+You will see a JSON response confirming ingestion.
 
-Frontend:
-
+### 3️⃣ Ask a question
+`POST /query` with JSON body `{ "question": "What is the leave policy?" }`
 ```bash
-streamlit run frontend/streamlit_app.py
+curl -X POST "http://127.0.0.1:8000/query" \
+  -H "Content-Type: application/json" \
+  -d '{"question": "What is the leave policy?"}'
+```
+Response example:
+```json
+{
+  "answer": "Employees receive 20 paid leave days annually.",
+  "citations": [
+    {
+      "source": "Policy.pdf",
+      "page": 4,
+      "paragraph": 2
+    }
+  ]
+}
 ```
 
-## Example Usage
+---
 
-Upload:
+## 📁 Project Structure
+```text
+ask-my-docs/
+│
+├─ app/
+│   ├─ __init__.py
+│   ├─ main.py          # FastAPI entry point
+│   ├─ routes.py        # /upload & /query endpoints
+│   └─ rag/
+│       ├─ __init__.py
+│       ├─ loader.py    # PDF/DOCX/MD extraction
+│       ├─ chunker.py   # Token-aware recursive splitter
+│       ├─ embedder.py  # Local sentence-transformer embeddings
+│       └─ vectorstore.py
+│
+├─ data/                # Uploaded files (git-ignored)
+├─ tests/               # Pytest suite
+├─ .env                 # Environment variables (git-ignored)
+├─ requirements.txt
+└─ README.md
+```
 
-* Research Papers
-* Company Policies
-* Legal Contracts
-* Technical Documentation
-* Academic Notes
-* Product Manuals
+---
 
-Example Questions:
+## 🧪 Testing
+A minimal sanity-check script is provided in `test_ingestion.py`. Run it with:
+```powershell
+python test_ingestion.py
+```
+It will:
+1. Load a sample PDF (place any PDF in `data/` and update the path).
+2. Chunk, embed, and store the vectors.
+3. Perform a similarity search and print the top result.
 
-* Summarize this document.
-* What are the key findings?
-* Explain section 4.
-* What risks are identified?
-* Compare topics discussed in the uploaded files.
+---
 
-## Future Enhancements
+## 📈 Next Steps (Phase 2 & 3)
+- **Hybrid Search** – combine BM25 keyword search with vector similarity.
+- **Re-ranking** – use a cross-encoder (e.g., `cross-encoder/ms-marco-MiniLM-L-6-v2`).
+- **Hallucination Guard** – verify that citations exist in the retrieved chunks.
+- **Prompt Versioning** – store prompts in `prompts/` as YAML.
+- **Evaluation Suite** – RAGAS, DeepEval, and a golden QA dataset.
+- **Docker & CI/CD** – containerise the service and add GitHub Actions for automated testing.
 
-* Multi-document conversations
-* Persistent chat history
-* Role-based access control
-* PostgreSQL integration
-* Hybrid search
-* Enterprise document management
-* Agentic workflows
-* MCP integration
-* Citation highlighting
-* Cloud deployment
 
-## Applications
+---
 
-* Enterprise Knowledge Management
-* Research Assistance
-* Legal Document Analysis
-* Academic Study Assistant
-* Policy Search Systems
-* Internal Documentation Search
-
-## Learning Outcomes
-
-This project demonstrates:
-
-* Retrieval-Augmented Generation (RAG)
-* Vector Databases
-* Semantic Search
-* LLM Integration
-* Prompt Engineering
-* Information Retrieval
-* AI System Design
-* Production AI Architecture
-
-## Author
-
-Sakthi Narayan
-
-Computer Science Student | AI/ML Enthusiast | Full-Stack AI Developer
+## Acknowledgements
+- **LangChain** – for the elegant text-splitting utilities.
+- **ChromaDB** – for a lightweight, pure-Python vector store.
+- **Ollama** – for making local LLM inference painless.
+- **Sentence-Transformers** – for the fast embedding model.
