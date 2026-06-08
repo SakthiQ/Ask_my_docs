@@ -1,5 +1,5 @@
 from typing import List
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 
 class DocumentEmbedder:
     """Handles converting text chunks into numerical vector embeddings."""
@@ -24,5 +24,4 @@ class DocumentEmbedder:
 # Example Usage
 if __name__ == "__main__":
     embedder = DocumentEmbedder()
-    # vector = embedder.embed_query("How do I apply for leave?")
     # print(len(vector)) # Should be 384

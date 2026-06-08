@@ -1,6 +1,7 @@
 import os
 from typing import List, Dict, Any
-from langchain_community.vectorstores import Chroma
+# pyrefly: ignore [missing-import]
+from langchain_chroma import Chroma
 from .embedder import DocumentEmbedder
 
 class VectorStoreManager:
@@ -30,9 +31,7 @@ class VectorStoreManager:
             metadatas=metadatas,
             ids=ids
         )
-        # Chroma saves to disk automatically in newer versions, 
-        # but this ensures persistence in all versions.
-        self.vector_store.persist()
+        # Chroma saves to disk automatically in newer versions.
 
     def search(self, query: str, k: int = 4) -> List[Dict[str, Any]]:
         """Searches for the top K most relevant chunks."""
@@ -49,6 +48,3 @@ class VectorStoreManager:
 # Example Usage
 if __name__ == "__main__":
     vsm = VectorStoreManager()
-    # vsm.add_chunks([{"content": "...", "metadata": {...}}])
-    # results = vsm.search("What is the leave policy?")
-    # print(results)
