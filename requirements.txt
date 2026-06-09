@@ -1,18 +1,11 @@
-# Core AI
+# Core AI & Integrations
 langchain
-langchain-openai
 langchain-community
-chromadb
-sentence-transformers
-tiktoken
-
-# Local AI Engines
-ollama
-sentence-transformers
+langchain-huggingface
+langchain-chroma
+langchain-text-splitters
 langchain-ollama
-langchain-community
-
-# Core Logic
+sentence-transformers
 chromadb
 tiktoken
 
