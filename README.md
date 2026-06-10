@@ -1,7 +1,5 @@
 # Ask My Documents – Local-Model RAG Platform
-![GitHub License](https://img.shields.io/github/license/SakthiQ/ask-my-docs)  
-![Python](https://img.shields.io/badge/python-3.11%2B-blue)  
-![Status](https://img.shields.io/badge/status-beta-orange)
+![GitHub License](https://img.shields.io/github/license/SakthiQ/ask-my-docs)  ![Python](https://img.shields.io/badge/python-3.11%2B-blue)  ![Status](https://img.shields.io/badge/status-beta-orange)
 
 ---
 
