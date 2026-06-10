@@ -18,7 +18,7 @@ flowchart LR
         U[Upload Document]
     end
     subgraph Backend
-        R[Retriever] --> V[Vector DB (Chroma)]
+        R[Retriever] --> V[Vector DB Chroma]
         Q --> R
         V --> L[LLM (Ollama)]
         L --> A[Answer + Citations]
