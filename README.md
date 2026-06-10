@@ -20,7 +20,7 @@ flowchart LR
     subgraph Backend
         R[Retriever] --> V[Vector DB Chroma]
         Q --> R
-        V --> L[LLM (Ollama)]
+        V --> L[LLM Ollama]
         L --> A[Answer + Citations]
     end
     U --> D[Document Loader]
