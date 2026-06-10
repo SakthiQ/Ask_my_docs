@@ -1,202 +1,154 @@
-# Ask My Documents – Local-Model RAG Platform
-![GitHub License](https://img.shields.io/github/license/SakthiQ/ask-my-docs)  ![Python](https://img.shields.io/badge/python-3.14%2B-blue)  ![Status](https://img.shields.io/badge/status-beta-orange)
+<div align="center">
+  <img src="assets/logo.png" alt="Ask My Documents Logo" width="200"/>
+  <h1>Ask My Documents</h1>
+  <p><strong>A Privacy-First, Agentic RAG Platform for Local Document Intelligence</strong></p>
+
+  [![GitHub License](https://img.shields.io/github/license/SakthiQ/ask-my-docs?style=flat-square&color=blue)](https://github.com/SakthiQ/ask-my-docs/blob/main/LICENSE)
+  [![Python](https://img.shields.io/badge/python-3.11+-blue?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+  [![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+  [![Ollama](https://img.shields.io/badge/Ollama-Llama3-orange?style=flat-square)](https://ollama.com/)
+  [![Status](https://img.shields.io/badge/status-beta-orange?style=flat-square)]()
+</div>
 
 ---
 
-## 🎯 Overview
-**Ask My Documents** is a privacy-first Retrieval-Augmented Generation (RAG) system that lets users upload PDFs, DOCX, or Markdown files, ask natural-language questions, and receive answers **backed by exact citations** (file name, page, paragraph).  
+## 🎯 What is Ask My Documents?
 
-All processing runs **locally** using a small embedding model (`all-MiniLM-L6-v2`) and a local LLM served by **Ollama** (e.g., `llama3`). No external API keys are required beyond the optional OpenAI key for fallback.
+**Ask My Documents** is an enterprise-grade, privacy-first Retrieval-Augmented Generation (RAG) system. It transforms your local PDFs, DOCX, and Markdown files into an interactive knowledge base—completely offline.
+
+> [!IMPORTANT]
+> **100% Local Logic**: No data ever leaves your machine. We use Ollama for LLM inference and Sentence-Transformers for local embeddings.
 
 ---
 
-## 🏗️ Architecture
+## ✨ Cutting-Edge Features
+
+| Feature | Description | Status |
+| :--- | :--- | :---: |
+| 🤖 **Agentic Loops** | Self-critiquing cycles that verify answer quality and refine search. | ✅ |
+| 🛣️ **Smart Routing** | Dynamic query routing using HyDE (Hypothetical Document Embeddings). | ✅ |
+| 🔍 **Hybrid Search** | Combines Semantic Vector (Chroma) + Keyword (BM25) search. | ✅ |
+| 🧠 **Cross-Encoder** | State-of-the-art re-ranking for maximum citation accuracy. | ✅ |
+| 📑 **Exact Citations** | Precise page, paragraph, and source file tracking. | ✅ |
+| ⚡ **Fast Path** | Optimized retrieval for simple factual questions. | ✅ |
+
+---
+
+## 🏗️ The Brain: Agentic Architecture
+
 ```mermaid
 flowchart TD
-    subgraph User
-        Q[User Question]
-        U[Upload Document]
+    subgraph UserInterface["🌐 User Interface"]
+        Q["User Question"]
+        U["Upload Document"]
     end
-    subgraph "Agentic Research Layer (Phase 5)"
-        R[Router: Normal vs HyDE]
-        MQ[Multi-Query Expansion]
-        AL[Corrective Loop / Critique]
-        Reason[Reasoning Trace UI]
+
+    subgraph AgenticLayer["🧠 Agentic Research Layer"]
+        R{"Router"} -->|Conceptual| HYDE["HyDE Generation"]
+        R -->|Factual| MQ["Multi-Query Expansion"]
+        
+        AL{"Critique Loop"}
+        AL -->|Insufficient| MQ
+        AL -->|Sufficient| LLM["LLM Synthesis"]
     end
-    subgraph Backend
-        R[Retriever] --> V[Vector DB (Chroma)]
-        Q --> R
-        V --> L[LLM (Ollama)]
-        L --> A[Answer + Citations]
+
+    subgraph RetrievalEngine["🔍 Retrieval Engine"]
+        VS[("Hybrid Vector Store")]
+        RK["Cross-Encoder Rerank"]
     end
-    
+
     Q --> R
-    R --> MQ
     MQ --> VS
+    HYDE --> VS
     VS --> RK
     RK --> AL
-    AL -->|Insufficient| MQ
-    AL -->|Sufficient| L
-    L --> A
-    A --> Reason
+    LLM --> Answer["Answer + Citations"]
     
-    U --> DL[Loader] --> CH[Chunker] --> EB[Embedder] --> VS
-    
-    style User fill:#f9f9f9,stroke:#333
-    style "Agentic Research Layer (Phase 5)" fill:#fff4e6,stroke:#d9480f
-    style Backend fill:#e6f7ff,stroke:#0050b3
+    U --> Loader --> Chunker --> Embedder --> VS
+
+    style AgenticLayer fill:#fff4e6,stroke:#d9480f,stroke-width:2px
+    style RetrievalEngine fill:#e6f7ff,stroke:#0050b3,stroke-width:2px
+    style UserInterface fill:#f9f9f9,stroke:#333
 ```
 
 ---
 
-## ✨ Features
-- 🤖 **Agentic Research Loops**: Self-critiquing cycles that verify answer quality and perform corrective searches if info is missing.
-- 🛣️ **Smart Routing (HyDE)**: Automatically detects conceptual questions and generates "Hypothetical Documents" for better retrieval.
-- 🧠 **Reasoning Trace UI**: Real-time visibility into the agent's internal steps (Planning -> Retrieval -> Critique).
-- 🔍 **Hybrid Search & Reranking**: Combines Vector (Chroma) + Keyword (BM25) search with a Cross-Encoder for maximum accuracy.
-- 📑 **Exact Citations**: Answers include file names, page numbers, and relevance scores.
-- 🔒 **Privacy First**: 100% local processing; all data stays on your machine.
+## � Quick Start (5 Minutes)
 
----
+### 1. Prerequisite Checklist
+*   [ ] **Python 3.11+** installed.
+*   [ ] **Ollama** installed and running.
+*   [ ] Run `ollama pull llama3`.
 
-## 🛠️ Tech Stack
-| Layer | Technology |
-|-------|------------|
-| **Backend** | FastAPI, Loguru, Tenacity |
-| **Vector DB** | ChromaDB & BM25Okapi |
-| **Reranker** | `cross-encoder/ms-marco-MiniLM-L-6-v2` |
-| **Embeddings** | Sentence-Transformers (`all-MiniLM-L6-v2`) |
-| **LLM Inference** | Ollama (Llama 3) |
-| **UI** | Streamlit |
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-1. **Python 3.11+** (recommended via `pyenv` or the system installer)
-2. **Ollama** – download from [https://ollama.com/download](https://ollama.com/download) and install.
-3. Pull a local model (e.g., `llama3`):
-   ```powershell
-   ollama pull llama3
-   ```
-4. (Optional) **GPU** – if you have an NVIDIA GPU, set `device='cuda'` in `embedder.py`.
-
-### Installation
+### 2. Setup
 ```powershell
-# Clone the repo
+# Clone & Navigate
 git clone https://github.com/SakthiQ/ask-my-docs.git
 cd ask-my-docs
 
-# Create a virtual environment
+# Environment Initialization
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-
-# Install dependencies
 pip install -r requirements.txt
 ```
 
-### Environment Variables
-Create a `.env` file in the project root:
-```text
-# If you ever want to fall back to OpenAI embeddings (optional)
-OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxx
-# Ollama model name (default is llama3)
-OLLAMA_MODEL=llama3
+### 3. Launch
+```powershell
+# Start the Backend
+uvicorn app.main:app --reload
+
+# Start the Frontend (New!)
+streamlit run frontend/streamlit_app.py
 ```
 
 ---
 
-## 📚 Usage
+## 📚 API Guide
 
-### 1️⃣ Start the API server
-```powershell
-uvicorn app.main:app --reload
-```
-The server will be reachable at `http://127.0.0.1:8000`.
+<details>
+<summary>📂 <b>View Endpoints & Examples</b></summary>
 
-### 2️⃣ Upload a document
-`POST /upload` with `multipart/form-data` (field name `file`). Example using `curl`:
+### Upload Document
+`POST /upload`
 ```bash
-curl -X POST "http://127.0.0.1:8000/upload" \
-  -F "file=@/path/to/Policy.pdf"
+curl -X POST "http://127.0.0.1:8000/upload" -F "file=@/path/to/Policy.pdf"
 ```
-You will see a JSON response confirming ingestion.
 
-### 3️⃣ Ask a question
-`POST /query` with JSON body `{ "question": "What is the leave policy?" }`
-```bash
-curl -X POST "http://127.0.0.1:8000/query" \
-  -H "Content-Type: application/json" \
-  -d '{"question": "What is the leave policy?"}'
-```
-Response example:
+### Ask AI
+`POST /query`
 ```json
 {
-  "answer": "Employees receive 20 paid leave days annually.",
-  "citations": [
-    {
-      "source": "Policy.pdf",
-      "page": 4,
-      "paragraph": 2
-    }
-  ]
+  "question": "What is the annual leave policy?"
 }
 ```
 
----
-
-## 📁 Project Structure
-```text
-ask-my-docs/
-│
-├─ app/
-│   ├─ main.py          # FastAPI entry point
-│   ├─ routes.py        # /upload & /query endpoints
-│   └─ rag/
-│       ├─ loader.py    # PDF/DOCX/MD extraction
-│       ├─ chunker.py   # Token-aware recursive splitter
-│       ├─ embedder.py  # Local sentence-transformer embeddings
-│       ├─ vectorstore.py
-│       └─ engine.py    # RAG Orchestration (Chroma + Ollama)
-│
-├─ frontend/
-│   └─ streamlit_app.py # Streamlit Chat UI
-│
-├─ data/                # Uploaded files
-├─ tests/               # Pytest suite
-├─ requirements.txt
-└─ README.md
-```
+</details>
 
 ---
 
-## 🧪 Testing
-A minimal sanity-check script is provided in `test_ingestion.py`. Run it with:
-```powershell
-python test_ingestion.py
-```
-It will:
-1. Load a sample PDF (place any PDF in `data/` and update the path).
-2. Chunk, embed, and store the vectors.
-3. Perform a similarity search and print the top result.
+## �️ Technology Stack
+
+*   **Orchestration**: LangChain, FastAPI
+*   **Vector Database**: ChromaDB (Atomic Persistence)
+*   **Search**: Hybrid (Vector + BM25Okapi)
+*   **Re-ranking**: `cross-encoder/ms-marco-MiniLM-L-6-v2`
+*   **Embeddings**: HuggingFace `all-MiniLM-L6-v2`
+*   **Logging**: Loguru & Tenacity (Retry Logic)
 
 ---
 
-## 📈 Future Roadmap
-- [x] **Hybrid Search** (Vector + BM25)
-- [x] **Re-ranking** (Cross-Encoder)
-- [x] **Agentic Reasoning** (Critique Loops)
-- [x] **Observeability** (Reasoning Trace)
-- [ ] **Evaluation Suite** – RAGAS / DeepEval integration.
-- [ ] **Docker Deployment** – Complete containerization for easy scaling.
-- [ ] **Knowledge Graph** – GraphRAG integration for complex relationship discovery.
+## 📈 Roadmap
 
+- [x] **Phase 1-3**: Basic RAG, FastAPI, and Advanced Retrieval.
+- [x] **Phase 4**: Hybrid Search & Cross-Encoder Reranking.
+- [x] **Phase 5**: Agentic Research Loops & HyDE Routing.
+- [ ] **Phase 6**: Multimodal Support (Images/Tables in PDFs).
+- [ ] **Phase 7**: Evaluation Framework (RAGAS).
 
 ---
 
-## Acknowledgements
-- **LangChain** – for the elegant text-splitting utilities.
-- **ChromaDB** – for a lightweight, pure-Python vector store.
-- **Ollama** – for making local LLM inference painless.
-- **Sentence-Transformers** – for the fast embedding model.
+<div align="center">
+  <p>Built with ❤️ for Privacy and Performance.</p>
+  <a href="#table-of-contents">Back to Top</a>
+</div>
+
