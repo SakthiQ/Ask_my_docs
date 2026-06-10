@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.history
+
+# Databases & Vector Stores
+chroma_db/
+*.sqlite3
+*.pkl
+document_registry.json
+
+# Environment
+.env
+
+# Data
+data/
+!data/.gitkeep
+
+# IDEs
+.vscode/
+.idea/

@@ -14,48 +14,62 @@ All processing runs **locally** using a small embedding model (`all-MiniLM-L6-v2
 
 ## 🏗️ Architecture
 ```mermaid
-flowchart LR
+flowchart TD
     subgraph User
         Q[User Question]
         U[Upload Document]
     end
-    subgraph Backend
-        R[Retriever] --> V[Vector DB (Chroma)]
-        Q --> R
-        V --> L[LLM (Ollama)]
-        L --> A[Answer + Citations]
+    subgraph "Agentic Research Layer (Phase 5)"
+        R[Router: Normal vs HyDE]
+        MQ[Multi-Query Expansion]
+        AL[Corrective Loop / Critique]
+        Reason[Reasoning Trace UI]
     end
-    U --> D[Document Loader]
-    D --> C[Chunker]
-    C --> E[Embedder]
-    E --> V
-    style User fill:#f9f9f9,stroke:#333,stroke-width:1px
-    style Backend fill:#e6f7ff,stroke:#333,stroke-width:1px
+    subgraph Backend
+        VS[Vector Store / Hybrid Search]
+        RK[Cross-Encoder Rerank]
+        L[LLM (Ollama)]
+        A[Answer + Citations]
+    end
+    
+    Q --> R
+    R --> MQ
+    MQ --> VS
+    VS --> RK
+    RK --> AL
+    AL -->|Insufficient| MQ
+    AL -->|Sufficient| L
+    L --> A
+    A --> Reason
+    
+    U --> DL[Loader] --> CH[Chunker] --> EB[Embedder] --> VS
+    
+    style User fill:#f9f9f9,stroke:#333
+    style "Agentic Research Layer (Phase 5)" fill:#fff4e6,stroke:#d9480f
+    style Backend fill:#e6f7ff,stroke:#0050b3
 ```
 
 ---
 
-## ✨ Features (MVP)
-- 📂 Upload PDFs, DOCX, Markdown
-- 🧹 Text extraction with page/paragraph metadata
-- 📏 Token-aware recursive chunking (600-token chunks, 100-token overlap)
-- 🔗 Local embeddings (`all-MiniLM-L6-v2`)
-- 📦 Persistent vector store (ChromaDB)
-- 🤖 Local LLM inference via Ollama (e.g., `llama3`)
-- 📑 Answers include **exact source citations**
+## ✨ Features
+- 🤖 **Agentic Research Loops**: Self-critiquing cycles that verify answer quality and perform corrective searches if info is missing.
+- 🛣️ **Smart Routing (HyDE)**: Automatically detects conceptual questions and generates "Hypothetical Documents" for better retrieval.
+- 🧠 **Reasoning Trace UI**: Real-time visibility into the agent's internal steps (Planning -> Retrieval -> Critique).
+- 🔍 **Hybrid Search & Reranking**: Combines Vector (Chroma) + Keyword (BM25) search with a Cross-Encoder for maximum accuracy.
+- 📑 **Exact Citations**: Answers include file names, page numbers, and relevance scores.
+- 🔒 **Privacy First**: 100% local processing; all data stays on your machine.
 
 ---
 
 ## 🛠️ Tech Stack
 | Layer | Technology |
 |-------|------------|
-| **Backend** | FastAPI, Uvicorn |
-| **Vector DB** | ChromaDB (local) |
+| **Backend** | FastAPI, Loguru, Tenacity |
+| **Vector DB** | ChromaDB & BM25Okapi |
+| **Reranker** | `cross-encoder/ms-marco-MiniLM-L-6-v2` |
 | **Embeddings** | Sentence-Transformers (`all-MiniLM-L6-v2`) |
-| **LLM** | Ollama (any local model, default `llama3`) |
-| **Document Parsing** | PyPDF, python-docx |
-| **Chunking** | LangChain RecursiveCharacterTextSplitter (token-aware) |
-| **Testing** | Pytest |
+| **LLM Inference** | Ollama (Llama 3) |
+| **UI** | Streamlit |
 
 ---
 
@@ -171,13 +185,14 @@ It will:
 
 ---
 
-## 📈 Next Steps (Phase 2 & 3)
-- **Hybrid Search** – combine BM25 keyword search with vector similarity.
-- **Re-ranking** – use a cross-encoder (e.g., `cross-encoder/ms-marco-MiniLM-L-6-v2`).
-- **Hallucination Guard** – verify that citations exist in the retrieved chunks.
-- **Prompt Versioning** – store prompts in `prompts/` as YAML.
-- **Evaluation Suite** – RAGAS, DeepEval, and a golden QA dataset.
-- **Docker & CI/CD** – containerise the service and add GitHub Actions for automated testing.
+## 📈 Future Roadmap
+- [x] **Hybrid Search** (Vector + BM25)
+- [x] **Re-ranking** (Cross-Encoder)
+- [x] **Agentic Reasoning** (Critique Loops)
+- [x] **Observeability** (Reasoning Trace)
+- [ ] **Evaluation Suite** – RAGAS / DeepEval integration.
+- [ ] **Docker Deployment** – Complete containerization for easy scaling.
+- [ ] **Knowledge Graph** – GraphRAG integration for complex relationship discovery.
 
 
 ---
