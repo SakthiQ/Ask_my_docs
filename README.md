@@ -1,7 +1,5 @@
 # Ask My Documents – Local-Model RAG Platform
-![GitHub License](https://img.shields.io/github/license/SakthiQ/ask-my-docs)  
-![Python](https://img.shields.io/badge/python-3.11%2B-blue)  
-![Status](https://img.shields.io/badge/status-beta-orange)
+![GitHub License](https://img.shields.io/github/license/SakthiQ/ask-my-docs)  ![Python](https://img.shields.io/badge/python-3.14%2B-blue)  ![Status](https://img.shields.io/badge/status-beta-orange)
 
 ---
 
@@ -26,10 +24,10 @@ flowchart TD
         Reason[Reasoning Trace UI]
     end
     subgraph Backend
-        VS[Vector Store / Hybrid Search]
-        RK[Cross-Encoder Rerank]
-        L[LLM (Ollama)]
-        A[Answer + Citations]
+        R[Retriever] --> V[Vector DB (Chroma)]
+        Q --> R
+        V --> L[LLM (Ollama)]
+        L --> A[Answer + Citations]
     end
     
     Q --> R
